@@ -7,7 +7,7 @@ Public API:
     from mei_fiber.extract import extract_ont
     from mei_fiber.viz import single_molecule_heatmap
 
-See README.md for a quickstart, examples/ for tutorial notebooks, and docs/ for the
+See README.md for a quickstart, examples/ for runnable examples, and docs/ for the
 full API reference.
 """
 

@@ -59,6 +59,8 @@ per-layer `_indices` tables to retrieve only molecular rows belonging to those f
 
 - [Installation](installation.md) — getting started
 - [Tutorial](tutorial.md) — end-to-end ONT and PacBio/FIRE workflows
+- [Querying and Annotations](querying.md) — coordinate, per-fiber, annotation-class,
+  cross-sample, accessibility, and gene-specific queries
 - [Parameter Reference](parameters.md) — command and YAML options
 - [Benchmark and Validation](benchmark.md) — performance and equivalence testing
 - [API Reference](api.md) — module documentation

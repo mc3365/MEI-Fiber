@@ -80,6 +80,10 @@ mei-fiber query \
   --sample d0
 ```
 
+See the [querying and annotations guide](docs/querying.md) for coordinate,
+per-fiber, annotation-class, cross-sample, accessibility, and gene-specific query
+examples, plus the annotation BED format.
+
 Or as a Python library:
 
 ```python
@@ -88,7 +92,7 @@ from mei_fiber.viz import single_molecule_heatmap
 
 with FiberDatabase("fiber_database.h5") as db:
     fig = single_molecule_heatmap(db, "chr1", 1_000_000, 1_100_000, sample="d0")
-    fig.savefig("ont_region.png", dpi=200)
+    fig.savefig("region.png", dpi=200)
 ```
 
 For PacBio data, use `mei-fiber extract --platform pacbio` with a PacBio config, or

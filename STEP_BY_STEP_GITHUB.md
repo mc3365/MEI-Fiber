@@ -260,7 +260,7 @@ The example plot shows nucleosomes, MSPs, and one modification layer across fibe
 overlapping a region:
 
 ```bash
-python examples/ont_region_plot.py \
+python examples/region_plot.py \
   --db /path/to/output/fiber_database.h5 \
   --region chr1:3000000-3050000 \
   --sample d0 \
@@ -292,7 +292,7 @@ Region plot options:
 Global ECDF plots summarize per-fiber feature fractions:
 
 ```bash
-python examples/ont_feature_ecdf.py \
+python examples/feature_ecdf.py \
   --db /path/to/output/fiber_database.h5 \
   --samples d0 d4 \
   --outdir figures/ecdf
@@ -308,7 +308,7 @@ Useful options:
 For annotation-body heatmaps and metaplots:
 
 ```bash
-python examples/ont_annotation_heatmap.py \
+python examples/annotation_heatmap.py \
   --db /path/to/output/fiber_database.h5 \
   --annotation CGI \
   --sample d0 \
@@ -322,7 +322,7 @@ Omit `--max-regions` for full annotation plots. Keep it for smoke tests.
 For fixed-window center/TSS heatmaps and metaplots:
 
 ```bash
-python examples/ont_centered_heatmap.py \
+python examples/centered_heatmap.py \
   --db /path/to/output/fiber_database.h5 \
   --bed /path/to/master_annotations_v4.uniqueID.bed \
   --annotation CGI \

@@ -125,6 +125,9 @@ mei-fiber info /path/to/fiber_database.h5
 `mei-fiber info` reports version, genome, samples, annotation count, spatial-index
 status, and per-sample fiber counts.
 
+For Python query methods and annotation-file construction, see
+[Querying and Annotations](querying.md).
+
 ```bash
 mei-fiber query \
   --db /path/to/fiber_database.h5 \
@@ -137,7 +140,7 @@ mei-fiber query \
 | --- | --- | --- |
 | `--db` | yes | HDF5 database path. |
 | `--region` | yes | Genomic interval in `chrom:start-end` form. |
-| `--sample` | no | Restrict query to one sample. If omitted, all samples are searched. |
+| `--sample` | no | Sample to query. If omitted, the first sample in the database is used. |
 | `--out` | no | Write overlapping fiber IDs to a text file. If omitted, only the count is printed. |
 
 ## PacBio FIRE Co-Accessibility
@@ -349,7 +352,7 @@ python examples/ont_benchmark_summary.py \
 ### Single-Molecule Region Plot
 
 ```bash
-python examples/ont_region_plot.py \
+python examples/region_plot.py \
   --db /path/to/fiber_database.h5 \
   --region chr1:3000000-3050000 \
   --sample d0 \
@@ -369,7 +372,7 @@ python examples/ont_region_plot.py \
 | `--tracks` | `full` | Track set: `full`, `modification`, or `chromatin`. |
 | `--max-fibers` | `100` | Maximum number of fiber rows shown. |
 | `--hide-unmodified` | off | Hide unmodified 5mC/5hmC calls for a cleaner modification-focused view. |
-| `--out` | `ont_region.png` | Output figure path. |
+| `--out` | `region.png` | Output figure path. |
 
 Use `--tracks modification` for 5mC/5hmC/6mA-only plots, `--tracks chromatin` for
 nucleosome/MSP-only plots, and `--tracks full` for all tracks together.
@@ -377,7 +380,7 @@ nucleosome/MSP-only plots, and `--tracks full` for all tracks together.
 ### Global ECDF Plots
 
 ```bash
-python examples/ont_feature_ecdf.py \
+python examples/feature_ecdf.py \
   --db /path/to/fiber_database.h5 \
   --samples d0 d4 \
   --max-fibers-per-chrom 50000 \
@@ -395,7 +398,7 @@ python examples/ont_feature_ecdf.py \
 ### Normalized Annotation Heatmap
 
 ```bash
-python examples/ont_annotation_heatmap.py \
+python examples/annotation_heatmap.py \
   --db /path/to/fiber_database.h5 \
   --annotation CGI \
   --sample d0 \
@@ -419,7 +422,7 @@ for the metaplot.
 ### Centered Annotation Heatmap And Metaplot
 
 ```bash
-python examples/ont_centered_heatmap.py \
+python examples/centered_heatmap.py \
   --db /path/to/fiber_database.h5 \
   --bed /path/to/master_annotations_v4.uniqueID.bed \
   --annotation CGI \

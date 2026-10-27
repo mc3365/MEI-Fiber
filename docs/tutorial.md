@@ -54,6 +54,10 @@ mei-fiber query \
   --sample sample1
 ```
 
+See [Querying and Annotations](querying.md) for all public query methods,
+annotation-class and cross-sample accessibility examples, gene-specific lookup, and
+the annotation BED format.
+
 ## PacBio Workflow
 
 PacBio support currently covers:
@@ -259,7 +263,7 @@ PY
 
 ### Annotation queries
 
-Annotation BED files are written during `mei-fiber build`. If the HDF5 was built
+Annotation BED files are loaded during `mei-fiber build`. If the HDF5 was built
 without annotations, rebuild with the `annotations.master` path added to the YAML.
 The package does not yet expose a safe command for adding annotations to an
 existing HDF5 file in place.
@@ -478,15 +482,18 @@ Install the optional plotting dependencies before running these examples:
 pip install -e ".[viz]"
 ```
 
-The examples below use an existing MEI-Fiber HDF5 database. They are intended as
-small, inspectable outputs rather than final manuscript layouts.
+The examples below use an existing MEI-Fiber HDF5 database and work with both ONT
+and PacBio when the required layers are present. PacBio databases do not contain
+5hmC through the current extraction pathway, and FIRE-specific outputs use the
+co-accessibility workflow rather than these shared figures. The examples are
+intended as small, inspectable outputs rather than final manuscript layouts.
 
 ### ECDF Summary Plots
 
 Global ECDF plots summarize per-fiber feature fractions for one or more samples:
 
 ```bash
-python examples/ont_feature_ecdf.py \
+python examples/feature_ecdf.py \
   --db /path/to/output/fiber_database.h5 \
   --samples d0 d4 \
   --outdir figures/ecdf
@@ -516,7 +523,7 @@ burden.
 Use `--max-fibers-per-chrom` for a fast smoke test:
 
 ```bash
-python examples/ont_feature_ecdf.py \
+python examples/feature_ecdf.py \
   --db /path/to/output/fiber_database.h5 \
   --samples d0 d4 \
   --max-fibers-per-chrom 5000 \
@@ -526,7 +533,7 @@ python examples/ont_feature_ecdf.py \
 For publication-style plots, provide explicit sample colors:
 
 ```bash
-python examples/ont_feature_ecdf.py \
+python examples/feature_ecdf.py \
   --db /path/to/output/fiber_database.h5 \
   --samples WT KO \
   --sample-colors 'WT=#3b6fb6' 'KO=#c74f46' \
@@ -542,7 +549,7 @@ because strand metadata is matched by chromosome, start, end, and unique region
 ID.
 
 ```bash
-python examples/ont_centered_heatmap.py \
+python examples/centered_heatmap.py \
   --db /path/to/output/fiber_database.h5 \
   --bed /path/to/master_annotations_v4.uniqueID.bed \
   --annotation CGI \
@@ -579,7 +586,7 @@ blue series and 5mC lines use a red series in the order supplied to `--samples`.
 For exact figure colors, override individual sample/signal pairs:
 
 ```bash
-python examples/ont_centered_heatmap.py \
+python examples/centered_heatmap.py \
   --db /path/to/output/fiber_database.h5 \
   --bed /path/to/master_annotations_v4.uniqueID.bed \
   --annotation Promoter \
@@ -600,7 +607,7 @@ recovered across many annotations.
 For a faster test, cap the number of regions:
 
 ```bash
-python examples/ont_centered_heatmap.py \
+python examples/centered_heatmap.py \
   --db /path/to/output/fiber_database.h5 \
   --bed /path/to/master_annotations_v4.uniqueID.bed \
   --annotation CGI \
@@ -611,7 +618,7 @@ python examples/ont_centered_heatmap.py \
 ```
 
 For body-normalized annotation plots rather than fixed center/TSS windows, use
-`examples/ont_annotation_heatmap.py`.
+`examples/annotation_heatmap.py`.
 
 ### Single-Molecule Region Plot
 
@@ -630,7 +637,7 @@ First, a modification-only view is useful when the main question is the
 single-molecule distribution of 5mC or 5hmC along each fiber:
 
 ```bash
-python examples/ont_region_plot.py \
+python examples/region_plot.py \
   --db /path/to/output/fiber_database.h5 \
   --region chr1:3000000-3050000 \
   --sample d0 \
@@ -646,7 +653,7 @@ A chromatin-only view is useful when nucleosome and MSP patterns become hard to
 see under base-level modification ticks:
 
 ```bash
-python examples/ont_region_plot.py \
+python examples/region_plot.py \
   --db /path/to/output/fiber_database.h5 \
   --region chr1:3000000-3050000 \
   --sample d0 \
@@ -661,7 +668,7 @@ A full overlay is useful for inspecting whether methylation, MSPs, and
 nucleosomes co-occur on the same individual molecules:
 
 ```bash
-python examples/ont_region_plot.py \
+python examples/region_plot.py \
   --db /path/to/output/fiber_database.h5 \
   --region chr1:3000000-3050000 \
   --sample d0 \

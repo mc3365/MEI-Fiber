@@ -1064,7 +1064,7 @@ class FiberDatabase:
         Args:
             region_id: Annotation ID, e.g. "Typical_Enhancer_42".
             sample: Sample to query.
-            feature_types: Layers to compute; defaults to all five supported layers.
+            feature_types: Layers to compute; defaults to all supported layers.
 
         Returns:
             DataFrame with one row per fiber overlapping the region. Empty DataFrame

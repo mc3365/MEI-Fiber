@@ -5,8 +5,11 @@ API docs are auto-generated from docstrings via `mkdocstrings`.
 The database API is built around a chromosome-partitioned HDF5 layout. Samples and
 shared annotations live in one file, while each sample/chromosome group stores flat
 feature arrays plus `_indices` tables that map integer fiber IDs to row ranges.
-The tutorial includes a [query walkthrough](tutorial.md#how-a-query-uses-the-database)
-showing how this layout is used for annotation-centered queries.
+The [querying and annotations guide](querying.md) lists the public query methods and
+shows coordinate, per-fiber, annotation-class, cross-sample, and gene-specific
+workflows. The tutorial also includes a
+[query walkthrough](tutorial.md#how-a-query-uses-the-database) showing how the HDF5
+layout is used for annotation-centered queries.
 
 ## Database
 

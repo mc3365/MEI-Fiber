@@ -1,12 +1,14 @@
-# Step-by-step ONT workflow
+# Step-by-step MEI-Fiber workflow
 
-This guide starts with an aligned Oxford Nanopore BAM and ends with a queryable
-MEI-Fiber database and a single-molecule regional plot. It follows the workflow tested
-with the d0 and d4 mouse embryonic stem-cell data.
+This guide starts with an aligned ONT or PacBio Fiber-seq BAM and ends with a
+queryable MEI-Fiber database and example figures. Extraction is platform-specific;
+HDF5 construction, annotations, indexed queries, and shared visualizations use the
+same workflow after extraction.
 
-This guide intentionally focuses on the ONT workflow. The complete PacBio extraction,
-HDF5, FIRE co-accessibility, ranking, and validation workflow is documented in
-[`docs/tutorial.md`](docs/tutorial.md) and [`configs/pacbio_template.yaml`](configs/pacbio_template.yaml).
+PacBio FIRE modeling remains an upstream process. MEI-Fiber can extract and package
+an existing FIRE-annotated BAM and can run the downstream co-accessibility workflow.
+The detailed FIRE preparation, ranking, and validation steps remain in
+[`docs/tutorial.md`](docs/tutorial.md#fire-co-accessibility-preparation).
 
 For a complete list of command-line and YAML options, see
 [`docs/parameters.md`](docs/parameters.md).
@@ -27,19 +29,22 @@ git checkout main
 git pull --ff-only
 ```
 
-## 2. Install MEI-Fiber and the ONT tools
+## 2. Install MEI-Fiber and the long-read tools
 
-The supplied Conda environment includes the versions used during validation:
+The shared Conda environment includes the versions used during validation:
 
 - samtools 1.22.1
 - modkit 0.5.0
 - fibertools-rs 0.8.0
 
+`samtools` and `fibertools-rs` are used by both workflows. `modkit` is used by ONT
+extraction and can remain installed in PacBio-only projects.
+
 Create the environment and install MEI-Fiber:
 
 ```bash
-conda env create -f environments/ont.yml
-conda activate mei-fiber-ont
+conda env create -f environments/mei_fiber.yml
+conda activate mei-fiber
 pip install -e ".[viz]"
 ```
 
@@ -52,18 +57,22 @@ modkit --version
 ft --version
 ```
 
-On an HPC system, the Python package and ONT tools may live in separate environments.
-In that case, set `modkit_executable`, `ft_executable`, and `samtools_executable` in
-the YAML configuration to their absolute paths.
+On an HPC system, the Python package and long-read tools may live in separate
+environments. In that case, use absolute executable paths in the YAML configuration:
+`ft_executable` and `samtools_executable` for both platforms, plus
+`modkit_executable` for ONT.
 
 ## 3. Check the input BAM
 
-The input BAM must:
+Every input BAM must:
 
 - be aligned and coordinate sorted;
 - have a BAM index (`.bai`);
-- use chromosome names compatible with the reference FASTA; and
-- contain paired MM and ML modification tags.
+- use chromosome names compatible with the reference FASTA.
+
+ONT BAMs must contain paired MM/ML modification tags. PacBio BAMs must be compatible
+with fibertools extraction; use a FIRE-annotated `*.fire.bam` when the optional
+`fire_accessibility` layer and downstream co-accessibility analysis are required.
 
 MEI-Fiber checks these requirements before extraction. Basic checks can also be run
 directly:
@@ -77,27 +86,37 @@ samtools view sample.bam | head -1
 The BAM and reference FASTA must describe the same genome assembly. For the validated
 mouse workflow, the reference path was an mm10 FASTA.
 
-## 4. Prepare the configuration
+## 4. Prepare a platform-specific configuration
 
-Make a project-specific copy of the ONT template:
+Copy the template matching the input platform:
 
 ```bash
+# ONT
 cp configs/ont_template.yaml configs/my_ont.yaml
+
+# PacBio
+cp configs/pacbio_template.yaml configs/my_pacbio.yaml
 ```
 
-Edit these fields in `configs/my_ont.yaml`:
+Edit these shared fields in the selected YAML:
 
 - `output_dir`: directory for the HDF5 database;
 - `output_file`: HDF5 filename;
 - `reference`: reference FASTA used for alignment;
 - `samples[].name`: short, unique sample name;
 - `samples[].bam`: aligned, modification-tagged BAM;
-- `samples[].layers`: paths for the extraction outputs; and
+- `samples[].layers`: paths for the platform's extraction outputs;
+- `annotations.master`: optional shared BED annotations; and
 - `extraction`: threads, overwrite behavior, and executable paths.
 
-The 5mC and 5hmC entries must point to the same modkit TSV because both call types are
-stored in that file. Keep `methylation_threshold: 0.5` to reproduce the validated
-binarization rule. Raw probabilities are also retained in the HDF5 database.
+For ONT, the 5mC and 5hmC entries normally point to the same modkit TSV because both
+call types are stored in that file. Keep `methylation_threshold: 0.5` to reproduce
+the validated binarization rule. Raw probabilities are retained in the HDF5 database.
+
+For PacBio, the extractor normalizes fibertools nucleosome, MSP, 6mA, and 5mC outputs
+into the same builder schema. PacBio does not produce the current 5hmC layer. Add
+`fire_accessibility` only when starting from a FIRE-annotated BAM or an existing
+`ft fire --extract` BED.
 
 For a second sample, add another item under `samples` with its own BAM and output
 paths. Sample names become top-level groups in the database.
@@ -106,15 +125,15 @@ Common YAML settings:
 
 | Field | Typical value | When to change it |
 | --- | --- | --- |
-| `parameters.methylation_threshold` | `0.5` | Keep this value to reproduce the validated ONT binarization. |
+| `parameters.methylation_threshold` | `0.5` | Binary 5mC/5hmC threshold; keep for the validated ONT behavior and cross-platform consistency. |
 | `build.build_spatial_index` | `true` | Keep enabled for fast coordinate queries. |
 | `extraction.threads` | `16` | Match available CPU cores. |
 | `extraction.overwrite` | `false` | Set to `true` only when regenerating extraction products. |
 | `extraction.validate_bam` | `true` | Keep enabled unless doing a very controlled rerun. |
 | `extraction.write_manifest` | `true` | Keep enabled for provenance and troubleshooting. |
-| `extraction.modkit_executable` | `modkit` or absolute path | Use an absolute path on HPC if tools live outside the Python environment. |
-| `extraction.ft_executable` | `ft` or absolute path | Use an absolute path on HPC if needed. |
-| `extraction.samtools_executable` | `samtools` or absolute path | Use an absolute path on HPC if needed. |
+| `extraction.modkit_executable` | `modkit` or absolute path | ONT only. Use an absolute path on HPC if needed. |
+| `extraction.ft_executable` | `ft` or absolute path | Required by both platform extractors. |
+| `extraction.samtools_executable` | `samtools` or absolute path | Used for BAM validation on both platforms. |
 
 ## 5. Run a small extraction test
 
@@ -129,12 +148,19 @@ samtools view -c sample_test.bam
 ```
 
 Create a second YAML file that points to `sample_test.bam` and writes to a separate
-test directory. Then run:
+test directory. Then run the matching extractor:
 
 ```bash
+# ONT
 mei-fiber extract \
   --platform ont \
   --config configs/ont_smoke_test.yaml \
+  --samples sample_test
+
+# PacBio
+mei-fiber extract \
+  --platform pacbio \
+  --config configs/pacbio_smoke_test.yaml \
   --samples sample_test
 ```
 
@@ -142,11 +168,11 @@ Extraction command options:
 
 | Option | Meaning |
 | --- | --- |
-| `--platform ont` | Use the ONT extractor. |
+| `--platform ont/pacbio` | Select the extractor matching the input BAM. |
 | `--config` | YAML configuration file. |
 | `--samples` | Optional sample filter. Repeat the flag to process multiple selected samples. |
 
-Successful extraction produces:
+Successful ONT extraction produces:
 
 - a shared modkit TSV for 5mC and 5hmC;
 - BED output for 6mA;
@@ -154,6 +180,10 @@ Successful extraction produces:
 - a flattened nucleosome CSV; and
 - `MEI-Fiber_manifest_<sample>.json` with BAM QC, tool versions, commands, and output
   sizes.
+
+Successful PacBio extraction produces normalized 5mC, 6mA, MSP, and nucleosome files
+for the same HDF5 builder. When configured from a FIRE-annotated BAM, it also produces
+the FIRE accessibility BED. Both platforms write the extraction manifest.
 
 Inspect the manifest before continuing:
 
@@ -164,13 +194,17 @@ python -m json.tool /path/to/MEI-Fiber_manifest_sample_test.json | less
 ## 6. Extract the full samples
 
 Run full extraction on a compute node or submit it as a Slurm job. To process every
-sample in the YAML:
+sample in the YAML, choose one command:
 
 ```bash
+# ONT
 mei-fiber extract --platform ont --config configs/my_ont.yaml
+
+# PacBio
+mei-fiber extract --platform pacbio --config configs/my_pacbio.yaml
 ```
 
-To process selected samples, repeat `--samples`:
+To process selected samples, repeat `--samples`. For example:
 
 ```bash
 mei-fiber extract \
@@ -191,10 +225,12 @@ Run the unit tests before a full build when developing from a Git checkout:
 python -m pytest tests/test_utils.py tests/test_builder.py -q
 ```
 
-Build every configured sample:
+Build every configured sample. The command is identical after either extraction
+workflow:
 
 ```bash
-mei-fiber build --config configs/my_ont.yaml
+CONFIG=configs/my_ont.yaml       # or configs/my_pacbio.yaml
+mei-fiber build --config "$CONFIG"
 ```
 
 Build command options:
@@ -355,7 +391,7 @@ python -m mei_fiber.benchmark.annotation \
   --db /path/to/output/fiber_database.h5 \
   --sample d0 \
   --annotation CGI \
-  --layers nucleosomes 5mC 5hmC msp \
+  --layers nucleosomes 5mC msp \
   --max-regions 50 \
   --repeats 3 \
   --warmups 1 \
@@ -365,9 +401,9 @@ python -m mei_fiber.benchmark.annotation \
 Use the random-region benchmark for technical scaling across window sizes:
 
 ```bash
-python -m mei_fiber.benchmark.ont \
+python -m mei_fiber.benchmark.database \
   --db /path/to/output/fiber_database.h5 \
-  --config configs/my_ont.yaml \
+  --config configs/my_platform.yaml \
   --sample d0 \
   --outdir benchmark/d0 \
   --region-sizes-kb 1 10 100 1000 \
@@ -379,6 +415,9 @@ python -m mei_fiber.benchmark.ont \
 
 For full production databases, avoid the slow array-scan baseline unless you
 specifically need it. Use `--query-modes spatial_index` for routine benchmarking.
+The database benchmark is platform-neutral. ONT annotation benchmarks can add
+`5hmC`; PacBio benchmarks can add `6mA` or `fire_accessibility` when those layers
+exist in the database.
 
 Benchmark options and outputs are described in
 [`docs/benchmark.md`](docs/benchmark.md) and
@@ -406,8 +445,8 @@ executables. On batch systems, shell startup files may not be loaded by Slurm.
 
 ### An executable is not found
 
-Activate the ONT environment, add its `bin` directory to `PATH`, or set the three
-executable paths explicitly in the YAML configuration.
+Activate the `mei-fiber` environment, add its `bin` directory to `PATH`, or set the
+required executable paths explicitly in the YAML configuration.
 
 ### `gzip.BadGzipFile`
 
@@ -439,4 +478,6 @@ MEI-Fiber began as a Python package skeleton and was filled in against the most 
 legacy V8 scripts. The database reader was first checked for output parity, followed by
 the builder and then the ONT extraction workflow. Real d0 and d4 data were used to
 validate the HDF5 build, regional queries, modification binarization, BAM QC, manifests,
-and extraction outputs. The validated ONT milestone is tagged `v0.4.0-ont`.
+and extraction outputs. PacBio normalization, the shared schema, FIRE accessibility,
+and downstream co-accessibility were subsequently validated against legacy outputs.
+The validated ONT milestone is tagged `v0.4.0-ont`.

@@ -1,13 +1,16 @@
 # Benchmarking and Validation
 
-The ONT benchmark records database scale and measures regional-query performance on
-an existing MEI-Fiber HDF5 database. It does not rebuild the database; full-build timing
-is recorded separately through the Slurm workflow.
+The database benchmark records database scale and measures regional-query performance
+on any MEI-Fiber HDF5 database. It is shared by ONT and PacBio because both platforms
+use the same HDF5 schema, spatial index, and query API. It does not rebuild the
+database; full-build timing is recorded separately through the Slurm workflow.
 
 PacBio FIRE validation compares legacy and MEI-Fiber `Cov.bed`, object, pair-ranking,
-and stitched-region outputs. These are complementary questions: the ONT benchmarks
-measure storage and query performance, while the PacBio validation measures workflow
-equivalence and explains intentional differences from the legacy implementation.
+and stitched-region outputs. These are complementary questions: the database
+benchmarks measure storage and query performance, while the PacBio validation measures
+workflow equivalence and explains intentional differences from the legacy
+implementation. The example benchmark figures on this page use the validated ONT d0/d4
+database, but the commands also accept a PacBio database and config.
 
 ## Run the benchmark
 
@@ -15,9 +18,9 @@ Use a compute node and write each sample to a separate output directory. Build t
 spatial index during the first run if the database does not already have one:
 
 ```bash
-python -m mei_fiber.benchmark.ont \
+python -m mei_fiber.benchmark.database \
   --db /path/to/fiber_database.h5 \
-  --config configs/my_ont.yaml \
+  --config configs/my_platform.yaml \
   --sample d0 \
   --outdir benchmark/d0 \
   --region-sizes-kb 1 10 100 1000 \
@@ -31,9 +34,9 @@ python -m mei_fiber.benchmark.ont \
 For another sample, reuse the saved index and change the output directory:
 
 ```bash
-python -m mei_fiber.benchmark.ont \
+python -m mei_fiber.benchmark.database \
   --db /path/to/fiber_database.h5 \
-  --config configs/my_ont.yaml \
+  --config configs/my_platform.yaml \
   --sample d4 \
   --outdir benchmark/d4
 ```

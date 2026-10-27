@@ -269,9 +269,9 @@ pair/cluster membership tables for investigating method-specific records,
 ## Random-Region Benchmark
 
 ```bash
-python -m mei_fiber.benchmark.ont \
+python -m mei_fiber.benchmark.database \
   --db /path/to/fiber_database.h5 \
-  --config configs/my_ont.yaml \
+  --config configs/my_platform.yaml \
   --sample d0 \
   --outdir benchmark/d0 \
   --region-sizes-kb 1 10 100 1000 \
@@ -340,7 +340,7 @@ python examples/ont_benchmark_summary.py \
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `--storage-summary` | required | `storage_summary.json` from `mei_fiber.benchmark.ont`. |
+| `--storage-summary` | required | `storage_summary.json` from `mei_fiber.benchmark.database`. |
 | `--query-results` | none | Optional `query_speed_results.csv` for random-window scatter plots. |
 | `--annotation-summary` | none | Optional `annotation_query_summary.csv` for annotation timing bars. |
 | `--bam` | none | Optional aligned BAM path. Repeat for multiple BAMs. |

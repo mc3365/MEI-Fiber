@@ -55,8 +55,8 @@ fast without repeatedly scanning whole chromosomes.
 ```bash
 git clone https://github.com/mc3365/MEI-Fiber.git
 cd MEI-Fiber
-conda env create -f environments/ont.yml
-conda activate mei-fiber-ont
+conda env create -f environments/mei_fiber.yml
+conda activate mei-fiber
 pip install -e ".[dev,viz]"
 ```
 
@@ -67,10 +67,12 @@ and namespace remain compatibility aliases for existing HPC workflows.
 ## Quickstart
 
 ```bash
-# Step 1: extract modifications from BAMs
+# Step 1: extract modifications using the matching platform adapter
 mei-fiber extract --platform ont --config configs/my_ont.yaml --samples d0
+# PacBio alternative:
+# mei-fiber extract --platform pacbio --config configs/my_pacbio.yaml --samples sample1
 
-# Step 2: build the HDF5 database and spatial-index sidecar
+# Step 2: build the shared HDF5 database and spatial-index sidecar
 mei-fiber build --config configs/my_ont.yaml --build-index
 
 # Step 3: query one region
@@ -108,8 +110,8 @@ provenance as the original run.
 Start with the [tutorial](docs/tutorial.md), then use the
 [parameter reference](docs/parameters.md) for every YAML and CLI option. The
 [benchmark and validation guide](docs/benchmark.md) explains outputs and figures,
-and the [step-by-step ONT workflow](STEP_BY_STEP_GITHUB.md) provides a focused ONT
-walkthrough.
+and the [step-by-step workflow](STEP_BY_STEP_GITHUB.md) covers both ONT and PacBio
+from aligned BAM through the shared database, queries, and figures.
 
 ## Supported platforms
 

@@ -19,7 +19,7 @@ Submit with absolute paths:
 
 ```bash
 sbatch --export=ALL,\
-CONFIG=/absolute/path/configs/benchmark_ont.yaml,\
+CONFIG=/absolute/path/configs/benchmark_database.yaml,\
 PYTHON=/absolute/path/env/bin/python,\
 MEI_FIBER_ROOT=/absolute/path/MEI-Fiber \
 slurm/benchmark_full_build.sh

@@ -6,7 +6,8 @@ output directory so the paper figures can be regenerated end-to-end from a built
 database.
 
 Implemented submodules:
-    ont          ONT storage and query benchmark command-line entry point
+    database     Platform-neutral storage and query benchmark entry point
+    ont          Compatibility alias for the former ONT-specific entry point
     query_speed  Warm-cache query time by region size and query mode
     storage      HDF5, intermediate-file, and record-count summaries
     coaccessibility  Legacy-versus-MEI-Fiber PacBio co-accessibility validation

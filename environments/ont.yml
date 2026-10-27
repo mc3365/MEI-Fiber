@@ -1,3 +1,5 @@
+# Legacy environment filename retained for existing workflows.
+# New installations should use environments/mei_fiber.yml.
 name: mei-fiber-ont
 channels:
   - conda-forge

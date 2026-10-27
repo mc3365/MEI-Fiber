@@ -1,4 +1,4 @@
-"""Tests for reproducible ONT benchmark outputs."""
+"""Tests for reproducible database and workflow benchmark outputs."""
 
 from __future__ import annotations
 
@@ -7,9 +7,15 @@ import json
 
 from mei_fiber.benchmark.annotation import run_annotation_benchmark
 from mei_fiber.benchmark.coaccessibility import run_coaccessibility_validation
+from mei_fiber.benchmark.database import main as database_benchmark_main
+from mei_fiber.benchmark.ont import main as legacy_ont_benchmark_main
 from mei_fiber.benchmark.query_speed import run_query_speed_benchmark
 from mei_fiber.benchmark.storage import run_storage_benchmark
 from mei_fiber.db import FiberDatabase
+
+
+def test_legacy_ont_benchmark_entrypoint_uses_database_benchmark():
+    assert legacy_ont_benchmark_main is database_benchmark_main
 
 
 def test_storage_benchmark_counts_database_layers(tiny_db_path_with_layers, tmp_path):

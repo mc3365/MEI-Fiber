@@ -33,7 +33,8 @@ def _resolve_executable(name: str) -> str:
     if resolved is None:
         raise FileNotFoundError(
             f"Required executable {name!r} was not found on PATH. "
-            "Activate the ONT environment or set its executable in config.extraction."
+            "Activate the MEI-Fiber environment or set its executable in "
+            "config.extraction."
         )
     return resolved
 

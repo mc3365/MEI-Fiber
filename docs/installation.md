@@ -14,17 +14,18 @@
 ```bash
 git clone https://github.com/mc3365/MEI-Fiber.git
 cd MEI-Fiber
-conda env create -f environments/ont.yml
-conda activate mei-fiber-ont
+conda env create -f environments/mei_fiber.yml
+conda activate mei-fiber
 pip install -e ".[dev,viz]"
 ```
 
 The `-e` flag is for *editable* install: changes to the source take effect without
 reinstalling.
 
-This installs the versions used for the validated ONT workflow: samtools 1.22.1,
-modkit 0.5.0, and fibertools-rs 0.8.0. PacBio extraction also uses fibertools-rs.
-The `[viz]` extra installs Matplotlib.
+This shared environment installs the validated tool versions: samtools 1.22.1,
+modkit 0.5.0, and fibertools-rs 0.8.0. Samtools and fibertools are used by both
+platform workflows; modkit is used only by ONT extraction. The `[viz]` extra installs
+Matplotlib.
 
 ## Verify the install
 
@@ -46,7 +47,7 @@ Python package in your analysis environment and put the long-read tool binaries 
 `PATH`:
 
 ```bash
-export PATH=/path/to/ont_env/bin:$PATH
+export PATH=/path/to/long_read_tools/bin:$PATH
 pip install -e ".[dev,viz]"
 ```
 
